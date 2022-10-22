@@ -41,6 +41,8 @@ struct FlagImage: View {
 struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Monaco", "Nigeria", "Poland", "Russia", "Spain", "UK", "USA"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
+    @State private var selectedFlag = -1
+    @State private var btnsDisabled = false
     
     @State private var rounds = 0
     @State private var score = 0
@@ -77,10 +79,16 @@ struct ContentView: View {
                         } label: {
                             FlagImage(img: countries[choiceNum])
                         }
+                        .disabled(btnsDisabled)
+                        .rotation3DEffect(.degrees(selectedFlag == choiceNum ? 360 : 0), axis: (x: 0, y: 1, z: 0))
+                        .scaleEffect((selectedFlag == -1)  ? 1 : ((selectedFlag == choiceNum) ? 1.1 : 0.75))
+                        .opacity(((selectedFlag == choiceNum) || (selectedFlag == -1))  ? 1 : 0.5)
+                        .animation(.default, value: countries[choiceNum])
+
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
+                .padding(.vertical, 40)
                 .background(.regularMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 
@@ -103,21 +111,28 @@ struct ContentView: View {
     }
     
     func flagTapped(_ choice: Int) {
-        //disable buttons
+        btnsDisabled = true
+        
         if choice == correctAnswer {score += 1}
-        
-        //animate buttons
-        
-        //wait for animations to complete
-        
-        rounds += 1
-        if rounds == 10 {
-            showSummary = true
-        } else {
-            countries.shuffle()
-            correctAnswer = Int.random(in: 0...2)
-            // enable buttons
+        withAnimation {
+            selectedFlag = choice
         }
+        
+        //wait for animations to complete then move to next round
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            rounds += 1
+            if rounds == 10 {
+                showSummary = true
+            } else {
+                countries.shuffle()
+                correctAnswer = Int.random(in: 0...2)
+                withAnimation {
+                    selectedFlag = -1
+                }
+                btnsDisabled = false
+            }
+        }
+        
     }
     
     func resetGame () {
@@ -125,6 +140,7 @@ struct ContentView: View {
         score = 0
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        btnsDisabled = false
     }
 }
 
