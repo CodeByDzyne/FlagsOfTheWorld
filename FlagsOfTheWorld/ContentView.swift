@@ -36,6 +36,23 @@ struct FlagImage: View {
     }
 }
 
+// MARK: - --------------  Correct Choice View  ---------------
+
+struct CorrectAnswerView: View {
+    var body: some View {
+        Text("Correct")
+    }
+}
+
+// MARK: - --------------  Wrong Choice View  ---------------
+
+struct Wrong: View {
+    var body: some View {
+        Text("Wrong")
+    }
+}
+
+
 // MARK: - --------------  Main View  ---------------
 
 struct ContentView: View {
@@ -140,6 +157,9 @@ struct ContentView: View {
         score = 0
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        withAnimation {
+            selectedFlag = -1
+        }
         btnsDisabled = false
     }
 }
