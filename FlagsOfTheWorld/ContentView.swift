@@ -40,15 +40,27 @@ struct FlagImage: View {
 
 struct CorrectAnswerView: View {
     var body: some View {
-        Text("Correct")
+        Image(systemName: "checkmark.circle")
+            .foregroundColor(.green)
+            .font(.system(size: 72, weight: .bold))
+            .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.75))
+            .clipShape(Circle())
     }
 }
 
 // MARK: - --------------  Wrong Choice View  ---------------
 
-struct Wrong: View {
+struct WrongAnswerView: View {
+    let country: String
+    let right: Bool
+    
     var body: some View {
-        Text("Wrong")
+        Text(country)
+            .foregroundColor(right ? .black : .red)
+            .font(.title2.bold())
+            .padding(10)
+            .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.85))
+            .clipShape(Capsule())
     }
 }
 
@@ -91,17 +103,33 @@ struct ContentView: View {
                     }
                     
                     ForEach(0..<3) {choiceNum in
-                        Button {
-                            flagTapped(choiceNum)
-                        } label: {
-                            FlagImage(img: countries[choiceNum])
+                        ZStack {
+                            Button {
+                                flagTapped(choiceNum)
+                            } label: {
+                                FlagImage(img: countries[choiceNum])
+                            }
+                            .disabled(btnsDisabled)
+                            .rotation3DEffect(.degrees(selectedFlag == choiceNum ? 360 : 0), axis: (x: 0, y: 1, z: 0))
+                            .scaleEffect((selectedFlag == -1)  ? 1 : ((selectedFlag == choiceNum) ? 1.1 : 0.75))
+                            .opacity(((selectedFlag == choiceNum) || (selectedFlag == -1))  ? 1 : 0.5)
+                            .animation(.default, value: countries[choiceNum])
+                            
+                            // TODO: not reflecting correct answer - need to check logic
+                            if selectedFlag > -1 {
+                                if choiceNum == correctAnswer {
+                                    CorrectAnswerView()
+                                        .transition(.asymmetric(
+                                            insertion: .scale.animation(.default),
+                                            removal: .opacity.animation(.default)))
+                                } else {
+                                    WrongAnswerView(country: countries[choiceNum], right: true)
+                                        .transition(.asymmetric(
+                                            insertion: .scale.animation(.default),
+                                            removal: .opacity.animation(.default)))
+                                }
+                            }
                         }
-                        .disabled(btnsDisabled)
-                        .rotation3DEffect(.degrees(selectedFlag == choiceNum ? 360 : 0), axis: (x: 0, y: 1, z: 0))
-                        .scaleEffect((selectedFlag == -1)  ? 1 : ((selectedFlag == choiceNum) ? 1.1 : 0.75))
-                        .opacity(((selectedFlag == choiceNum) || (selectedFlag == -1))  ? 1 : 0.5)
-                        .animation(.default, value: countries[choiceNum])
-
                     }
                 }
                 .frame(maxWidth: .infinity)
