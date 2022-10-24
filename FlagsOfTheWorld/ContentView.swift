@@ -52,11 +52,10 @@ struct CorrectAnswerView: View {
 
 struct WrongAnswerView: View {
     let country: String
-    let right: Bool
     
     var body: some View {
         Text(country)
-            .foregroundColor(right ? .black : .red)
+            .foregroundColor(.red)
             .font(.title2.bold())
             .padding(10)
             .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.85))
@@ -116,14 +115,14 @@ struct ContentView: View {
                             .animation(.default, value: countries[choiceNum])
                             
                             // TODO: not reflecting correct answer - need to check logic
-                            if selectedFlag > -1 {
+                            if selectedFlag == choiceNum {
                                 if choiceNum == correctAnswer {
                                     CorrectAnswerView()
                                         .transition(.asymmetric(
                                             insertion: .scale.animation(.default),
                                             removal: .opacity.animation(.default)))
                                 } else {
-                                    WrongAnswerView(country: countries[choiceNum], right: true)
+                                    WrongAnswerView(country: countries[choiceNum])
                                         .transition(.asymmetric(
                                             insertion: .scale.animation(.default),
                                             removal: .opacity.animation(.default)))
